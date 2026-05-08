@@ -2,44 +2,35 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Star, BookOpen, Film, Music, Sparkles } from 'lucide-react';
+import { BookOpen, Film, Music, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface ReviewData {
+interface WatchlistData {
   name: string;
-  stars: number;
-  why: string;
   genre: string;
-  extraThoughts: string;
+  recommendedBy: string;
 }
 
-export function ReviewSurveyForm() {
-  const [bookData, setBookData] = useState<ReviewData>({
-    Booktitle : '',
-    stars: 0,
-    why: '',
+export function WatchlistForm() {
+  const [bookData, setBookData] = useState<WatchlistData>({
+    name: '',
     genre: '',
-    extraThoughts: '',
+    recommendedBy: '',
   });
 
-  const [movieData, setMovieData] = useState<ReviewData>({
+  const [movieData, setMovieData] = useState<WatchlistData>({
     name: '',
-    stars: 0,
-    why: '',
     genre: '',
-    extraThoughts: '',
+    recommendedBy: '',
   });
 
-  const [albumData, setAlbumData] = useState<ReviewData>({
+  const [albumData, setAlbumData] = useState<WatchlistData>({
     name: '',
-    stars: 0,
-    why: '',
     genre: '',
-    extraThoughts: '',
+    recommendedBy: '',
   });
 
   const bookGenres = [
@@ -89,8 +80,18 @@ export function ReviewSurveyForm() {
     'Blues',
   ];
 
+  const recommendedByOptions = [
+    'Friend',
+    'Family',
+    'Social Media',
+    'Online Review',
+    'Trending',
+    'Personal Discovery',
+    'Other',
+  ];
+
   const handleSubmit = (type: 'book' | 'movie' | 'album') => {
-    let data: ReviewData;
+    let data: WatchlistData;
     let label: string;
 
     switch (type) {
@@ -113,53 +114,23 @@ export function ReviewSurveyForm() {
       return;
     }
 
-    console.log(`${label} Review:`, data);
-    toast.success(`${label} added to watchlist! ✨`);
+    console.log(`${label} to Watchlist:`, data);
+    toast.success(`${label} added to watchlist! 📝`);
 
     // Reset form
     if (type === 'book') {
-      setBookData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' });
+      setBookData({ name: '', genre: '', recommendedBy: '' });
     } else if (type === 'movie') {
-      setMovieData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' });
+      setMovieData({ name: '', genre: '', recommendedBy: '' });
     } else {
-      setAlbumData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' });
+      setAlbumData({ name: '', genre: '', recommendedBy: '' });
     }
   };
 
-
-  const StarRating = ({
-    rating,
-    onChange,
-  }: {
-    rating: number;
-    onChange: (rating: number) => void;
-  }) => {
-    return (
-      <div className="flex gap-2">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => onChange(star)}
-            className="transition-all duration-200 hover:scale-125 focus:outline-none focus:ring-2 focus:ring-[#9c9f69] rounded-full p-1"
-          >
-            <Star
-              className={`w-8 h-8 ${
-                star <= rating
-                  ? 'fill-[#9c9f69] text-[#9c9f69]'
-                  : 'fill-[#dcc2c4] text-[#dcc2c4]'
-              }`}
-            />
-          </button>
-        ))}
-      </div>
-    );
-  };
-
-  const renderReviewForm = (
+  const renderWatchlistForm = (
     type: 'book' | 'movie' | 'album',
-    data: ReviewData,
-    setData: React.Dispatch<React.SetStateAction<ReviewData>>,
+    data: WatchlistData,
+    setData: React.Dispatch<React.SetStateAction<WatchlistData>>,
     genres: string[]
   ) => {
     const labels = {
@@ -183,30 +154,6 @@ export function ReviewSurveyForm() {
           />
         </div>
 
-        <div className="space-y-3">
-          <Label className="text-[#332202]">Stars</Label>
-          <div className="flex items-center gap-4">
-            <StarRating
-              rating={data.stars}
-              onChange={(stars) => setData({ ...data, stars })}
-            />
-            <span className="text-sm text-[#332202] font-medium">
-              {data.stars > 0 ? `${data.stars} / 5` : 'Not rated'}
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor={`${type}-why`} className="text-[#332202]">Why</Label>
-          <Textarea
-            id={`${type}-why`}
-            placeholder="Why did you choose this? What did you think?"
-            value={data.why}
-            onChange={(e) => setData({ ...data, why: e.target.value })}
-            className="min-h-24 border-2 border-[#dcc2c4] focus:border-[#9c9f69] rounded-2xl"
-          />
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor={`${type}-genre`} className="text-[#332202]">Genre</Label>
           <Select value={data.genre} onValueChange={(value) => setData({ ...data, genre: value })}>
@@ -224,22 +171,27 @@ export function ReviewSurveyForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`${type}-extra`} className="text-[#332202]">Extra Thoughts</Label>
-          <Textarea
-            id={`${type}-extra`}
-            placeholder="Any additional thoughts..."
-            value={data.extraThoughts}
-            onChange={(e) => setData({ ...data, extraThoughts: e.target.value })}
-            className="min-h-24 border-2 border-[#dcc2c4] focus:border-[#9c9f69] rounded-2xl"
-          />
+          <Label htmlFor={`${type}-recommended`} className="text-[#332202]">Who Recommended It?</Label>
+          <Select value={data.recommendedBy} onValueChange={(value) => setData({ ...data, recommendedBy: value })}>
+            <SelectTrigger id={`${type}-recommended`} className="border-2 border-[#dcc2c4] focus:border-[#9c9f69] rounded-2xl">
+              <SelectValue placeholder="Select source" />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl border-2 border-[#dcc2c4]">
+              {recommendedByOptions.map((option) => (
+                <SelectItem key={option} value={option} className="rounded-xl focus:bg-[#dcc2c4]">
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <Button 
           onClick={() => handleSubmit(type)} 
           className="w-full bg-[#9c9f69] hover:bg-[#8a8d5e] text-white rounded-2xl py-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
         >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Submit
+          <Plus className="w-4 h-4 mr-2" />
+          Add to Watchlist
         </Button>
       </div>
     );
@@ -251,12 +203,12 @@ export function ReviewSurveyForm() {
         <CardHeader className="text-center bg-gradient-to-br from-[#dcc2c4]/40 to-[#9c9f69]/20 pb-8">
           <div className="flex justify-center mb-3">
             <div className="bg-white p-4 rounded-full shadow-lg">
-              <Sparkles className="w-10 h-10 text-[#9c9f69]" />
+              <Plus className="w-10 h-10 text-[#9c9f69]" />
             </div>
           </div>
-          <CardTitle className="text-4xl text-[#332202] mb-2">Media Review Survey</CardTitle>
+          <CardTitle className="text-4xl text-[#332202] mb-2">My Watchlist</CardTitle>
           <CardDescription className="text-[#332202]/70 text-base">
-            Share your thoughts on books, movies, shows, and albums ✨
+            Add books, movies, shows, and albums to your watchlist 📝
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
@@ -286,15 +238,15 @@ export function ReviewSurveyForm() {
             </TabsList>
 
             <TabsContent value="books" className="mt-6">
-              {renderReviewForm('book', bookData, setBookData, bookGenres)}
+              {renderWatchlistForm('book', bookData, setBookData, bookGenres)}
             </TabsContent>
 
             <TabsContent value="movies" className="mt-6">
-              {renderReviewForm('movie', movieData, setMovieData, movieGenres)}
+              {renderWatchlistForm('movie', movieData, setMovieData, movieGenres)}
             </TabsContent>
 
             <TabsContent value="albums" className="mt-6">
-              {renderReviewForm('album', albumData, setAlbumData, albumGenres)}
+              {renderWatchlistForm('album', albumData, setAlbumData, albumGenres)}
             </TabsContent>
           </Tabs>
         </CardContent>
