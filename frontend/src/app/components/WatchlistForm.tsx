@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { BookOpen, Film, Music, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { submitWatchlistItem } from '../../api/index';
 
 interface WatchlistData {
   name: string;
@@ -90,42 +91,32 @@ export function WatchlistForm() {
     'Other',
   ];
 
-  const handleSubmit = (type: 'book' | 'movie' | 'album') => {
-    let data: WatchlistData;
-    let label: string;
+ const handleSubmit = async (type: 'book' | 'movie' | 'album') => {
+  let data: WatchlistData
+  let label: string
 
-    switch (type) {
-      case 'book':
-        data = bookData;
-        label = 'Book';
-        break;
-      case 'movie':
-        data = movieData;
-        label = 'Movie/Show';
-        break;
-      case 'album':
-        data = albumData;
-        label = 'Album';
-        break;
-    }
+  switch (type) {
+    case 'book': data = bookData; label = 'Book'; break
+    case 'movie': data = movieData; label = 'Movie/Show'; break
+    case 'album': data = albumData; label = 'Album'; break
+  }
 
-    if (!data.name) {
-      toast.error('Please enter a name');
-      return;
-    }
+  if (!data.name) {
+    toast.error('Please enter a name')
+    return
+  }
 
-    console.log(`${label} to Watchlist:`, data);
-    toast.success(`${label} added to watchlist! 📝`);
-
-    // Reset form
-    if (type === 'book') {
-      setBookData({ name: '', genre: '', recommendedBy: '' });
-    } else if (type === 'movie') {
-      setMovieData({ name: '', genre: '', recommendedBy: '' });
-    } else {
-      setAlbumData({ name: '', genre: '', recommendedBy: '' });
-    }
-  };
+  try {
+    await submitWatchlistItem(type, data)
+    toast.success(`${label} added to watchlist! 📝`)
+    if (type === 'book') setBookData({ name: '', genre: '', recommendedBy: '' })
+    else if (type === 'movie') setMovieData({ name: '', genre: '', recommendedBy: '' })
+    else setAlbumData({ name: '', genre: '', recommendedBy: '' })
+  } catch (err) {
+    toast.error('Something went wrong, try again')
+    console.error(err)
+  }
+}
 
   const renderWatchlistForm = (
     type: 'book' | 'movie' | 'album',

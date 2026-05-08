@@ -27,15 +27,17 @@ def create_review(title, rating, review_text=None, reviewer=None):
 
 
 # READ
-def get_review_by_id(review_id):
-    """Get a review by ID"""
-    return reviews_collection.find_one({'_id': ObjectId(review_id)})
-
+def get_all_reviews():
+    reviews = list(reviews_collection.find({}))
+    for r in reviews:
+        r["_id"] = str(r["_id"])  # convert ObjectId to string
+    return reviews
 
 def get_reviews_by_title(title):
-    """Get all reviews for a specific title"""
-    return list(reviews_collection.find({'title': title}))
-
+    reviews = list(reviews_collection.find({'title': title}))
+    for r in reviews:
+        r["_id"] = str(r["_id"])
+    return reviews
 
 def get_all_reviews():
     """Get all reviews"""
