@@ -8,7 +8,7 @@ import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Star, BookOpen, Film, Music, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-
+import { submitReview } from '../../api/index'
 interface ReviewData {
   name: string;
   stars: number;
@@ -89,43 +89,33 @@ export function ReviewSurveyForm() {
     'Blues',
   ];
 
-  const handleSubmit = (type: 'book' | 'movie' | 'album') => {
-    let data: ReviewData;
-    let label: string;
+  const handleSubmit = async (type: 'book' | 'movie' | 'album') => {
+  let data: ReviewData
+  let label: string
 
-    switch (type) {
-      case 'book':
-        data = bookData;
-        label = 'Book';
-        break;
-      case 'movie':
-        data = movieData;
-        label = 'Movie/Show';
-        break;
-      case 'album':
-        data = albumData;
-        label = 'Album';
-        break;
-    }
+  switch (type) {
+    case 'book': data = bookData; label = 'Book'; break
+    case 'movie': data = movieData; label = 'Movie/Show'; break
+    case 'album': data = albumData; label = 'Album'; break
+  }
 
-    if (!data.name) {
-      toast.error('Please enter a name');
-      return;
-    }
+  if (!data.name) {
+    toast.error('Please enter a name')
+    return
+  }
 
-    console.log(`${label} Review:`, data);
-    toast.success(`${label} added to watchlist! ✨`);
-
-    // Reset form
-    if (type === 'book') {
-      setBookData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' });
-    } else if (type === 'movie') {
-      setMovieData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' });
-    } else {
-      setAlbumData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' });
-    }
-  };
-
+  try {
+    await submitReview(type, data)
+    toast.success(`${label} review saved! ✨`)
+    // reset form
+    if (type === 'book') setBookData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' })
+    else if (type === 'movie') setMovieData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' })
+    else setAlbumData({ name: '', stars: 0, why: '', genre: '', extraThoughts: '' })
+  } catch (err) {
+    toast.error('Something went wrong, try again')
+    console.error(err)
+  }
+}
 
   const StarRating = ({
     rating,
